@@ -1,13 +1,19 @@
 package com.fsboot.service;
 
+import java.util.List;
+
 import com.fsboot.dto.UserDto;
 import com.fsboot.entities.User;
 
 public interface UserServiceDaoImpl {
-    public int insertUser(String name, String address);
-    public Object getAllUsers();
-    public Object getSingleUserById(Integer id);
-    public int updateUserById(int id,String name,String address);
-    public int deleteUserById(Integer id);
-    public User dtoToModel(UserDto userDto);
+	public User insertUser(User user);
+
+	public List<UserDto> getAllUsers();
+
+	public User getSingleUserById(Integer id);
+
+	public User updateUserById(User user);
+
+	public User deleteUserById(Integer id);
+
 }

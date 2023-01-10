@@ -1,38 +1,150 @@
 package com.fsboot.controller;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
-import com.fsboot.service.UserServiceDao;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.repository.query.Param;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.fsboot.Validator.UserDataInfoValidator;
+import com.fsboot.dto.UserDto;
+import com.fsboot.entities.ResponseModel;
+import com.fsboot.entities.User;
+import com.fsboot.helper.UserInfoHelper;
+import com.fsboot.service.UserServiceDao;
+import com.fsboot.utils.UserConstants;
 
 @RestController
 @RequestMapping(value = "/api")
-public class UserController  {
-    @Autowired
-    private UserServiceDao userServiceDao;
-    @GetMapping("/search/{id}")
-    public Object Search(@PathVariable("id") int id) {
-        return this.userServiceDao.getSingleUserById(id);
-    }
-    @GetMapping("/index")
-      public Object Index()
-    {
-        return userServiceDao.getAllUsers();
-    }
-    @PostMapping("/save")
-    public int Save(@Param("name") String name,@Param("address") String address)
-   {
-        return userServiceDao.insertUser(name, address);
-    }
-    @PostMapping("/update/{id}")
-    public int Update(@PathVariable("id") int id,@Param("name") String name,@Param("address") String address)
-    {
-        return userServiceDao.updateUserById(id,name,address);
-    }
-    @PostMapping("/delete/{id}")
-    public int Delete(@PathVariable("id") int id)
-    {
-        return userServiceDao.deleteUserById(id);
-    }
+public class UserController implements UserConstants {
+
+	@Autowired
+	private UserServiceDao userServiceDao;
+	@Autowired
+	private ResponseModel responseModel;
+
+	@GetMapping("/search/{id}")
+	public ResponseModel Search(@PathVariable("id") int id) {
+		try {
+			User user = userServiceDao.getSingleUserById(id);
+			if (user != null) {
+				responseModel.setMessage(DATA_FOUND);
+				responseModel.setStatus(SUCCESS);
+				responseModel.setData(user);
+
+			} else {
+				responseModel.setMessage(DATA_NOT_FOUND);
+				responseModel.setStatus(FAIL);
+				responseModel.setData(null);
+			}
+		} catch (Exception ex) {
+
+			responseModel.setMessage(ERROR_EXCEPTION + ex.getLocalizedMessage());
+			responseModel.setStatus(FAIL);
+			responseModel.setData(null);
+		}
+		return responseModel;
+
+	}
+
+	@GetMapping(value = "/index")
+	public ResponseModel Index() {
+
+		List<UserDto> allUsers = userServiceDao.getAllUsers();
+		System.out.println(allUsers);
+		try {
+
+			if (allUsers != null) {
+				responseModel.setMessage(DATA_FOUND);
+				responseModel.setStatus(SUCCESS);
+				responseModel.setData(allUsers);
+
+			} else {
+				responseModel.setMessage(DATA_NOT_FOUND);
+				responseModel.setStatus(FAIL);
+			}
+		} catch (Exception ex) {
+
+			responseModel.setMessage(ERROR_EXCEPTION + ex.getLocalizedMessage());
+			responseModel.setStatus(FAIL);
+		}
+		return responseModel;
+
+	}
+
+	@PostMapping(value = "/save", consumes = "application/json")
+	public ResponseModel Save(@RequestBody String jsonDataForSaveUserDataInfo) {
+		ArrayList<String> validationResult;
+		validationResult = UserDataInfoValidator.validateSaveUserInfo(jsonDataForSaveUserDataInfo);
+		if (validationResult.isEmpty()) {
+			try {
+				User user = userServiceDao
+						.insertUser(UserInfoHelper.processSaveUserInfoJsonRequestData(jsonDataForSaveUserDataInfo));
+				if (user != null) {
+					responseModel.setStatus(SUCCESS);
+					responseModel.setMessage(USER_ADDED_SUCCESSFULLY);
+					responseModel.setData(user);
+				} else {
+					responseModel.setStatus(FAIL);
+					responseModel.setMessage(ERROR_UNSUCCESS);
+				}
+			} catch (Exception ex) {
+
+				responseModel.setMessage(ERROR_EXCEPTION);
+				responseModel.setStatus(FAIL);
+			}
+
+		} else {
+			responseModel.setMessage(VALIDATION_ERROR);
+			responseModel.setStatus(FAIL);
+			responseModel.setData(validationResult);
+		}
+		return responseModel;
+	}
+
+	@PutMapping(value = "/update/{id}", consumes = "application/json")
+	public ResponseModel Update(@RequestBody String jsonDataForUpdateUserDataInfo) {
+		ArrayList<String> validationResult;
+		validationResult = UserDataInfoValidator.validateUpdateUserInfo(jsonDataForUpdateUserDataInfo);
+		if (validationResult.size() == 0) {
+			try {
+				User user = userServiceDao.updateUserById(
+						UserInfoHelper.processUpdateUserInfoJsonRequestData(jsonDataForUpdateUserDataInfo));
+
+				if (user != null) {
+					responseModel.setStatus(SUCCESS);
+					responseModel.setMessage(USER_DETAILS_UPDATED_SUCCESSFULLY);
+					responseModel.setData(user);
+				} else {
+					responseModel.setStatus(FAIL);
+					responseModel.setMessage(ERROR_UNSUCCESS);
+				}
+			} catch (Exception ex) {
+
+				responseModel.setMessage(ERROR_EXCEPTION);
+				responseModel.setStatus(FAIL);
+			}
+
+		} else {
+			responseModel.setMessage(VALIDATION_ERROR);
+			responseModel.setStatus(FAIL);
+			responseModel.setData(validationResult);
+		}
+		return responseModel;
+	}
+
+	@DeleteMapping("/delete/{id}")
+	public ResponseModel Delete(@PathVariable("id") int id) {
+		User user = userServiceDao.deleteUserById(id);
+		responseModel.setData(user);
+		return responseModel;
+	}
 }
