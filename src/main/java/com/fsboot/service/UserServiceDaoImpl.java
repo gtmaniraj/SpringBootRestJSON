@@ -1,6 +1,7 @@
 package com.fsboot.service;
 
 import java.util.List;
+import java.util.Optional;
 
 import com.fsboot.dto.UserDto;
 import com.fsboot.entities.User;
@@ -14,6 +15,6 @@ public interface UserServiceDaoImpl {
 
 	public User updateUserById(User user);
 
-	public User deleteUserById(Integer id);
+	public Optional<User> deleteUserById(Integer id);
 
 }

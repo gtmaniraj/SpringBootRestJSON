@@ -6,6 +6,7 @@ import com.fsboot.dto.UserDto;
 import com.fsboot.entities.User;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -39,10 +40,9 @@ public class UserServiceDao implements UserServiceDaoImpl, UserSqlQueries {
 	}
 
 	@Override
-	public User deleteUserById(Integer id) {
-		userDao.delData(id);
-		User user = null;
-		return user;
+	public Optional<User> deleteUserById(Integer id) {
+		return userDao.delData(id);
+		
 	}
 
 }

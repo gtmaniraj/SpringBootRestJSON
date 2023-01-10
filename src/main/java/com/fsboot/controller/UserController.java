@@ -56,12 +56,9 @@ public class UserController implements UserConstants {
 	}
 
 	@GetMapping(value = "/index")
-	public ResponseModel Index() {
-
-		List<UserDto> allUsers = userServiceDao.getAllUsers();
-		System.out.println(allUsers);
+	public ResponseModel Index() {	
 		try {
-
+			List<UserDto> allUsers = userServiceDao.getAllUsers();
 			if (allUsers != null) {
 				responseModel.setMessage(DATA_FOUND);
 				responseModel.setStatus(SUCCESS);
@@ -70,11 +67,13 @@ public class UserController implements UserConstants {
 			} else {
 				responseModel.setMessage(DATA_NOT_FOUND);
 				responseModel.setStatus(FAIL);
+				responseModel.setData(null);
 			}
 		} catch (Exception ex) {
 
 			responseModel.setMessage(ERROR_EXCEPTION + ex.getLocalizedMessage());
 			responseModel.setStatus(FAIL);
+			responseModel.setData(null);
 		}
 		return responseModel;
 
@@ -95,11 +94,13 @@ public class UserController implements UserConstants {
 				} else {
 					responseModel.setStatus(FAIL);
 					responseModel.setMessage(ERROR_UNSUCCESS);
+					responseModel.setData(null);
 				}
 			} catch (Exception ex) {
 
 				responseModel.setMessage(ERROR_EXCEPTION);
 				responseModel.setStatus(FAIL);
+				responseModel.setData(null);
 			}
 
 		} else {
@@ -126,11 +127,13 @@ public class UserController implements UserConstants {
 				} else {
 					responseModel.setStatus(FAIL);
 					responseModel.setMessage(ERROR_UNSUCCESS);
+					responseModel.setData(null);
 				}
 			} catch (Exception ex) {
 
 				responseModel.setMessage(ERROR_EXCEPTION);
 				responseModel.setStatus(FAIL);
+				responseModel.setData(null);
 			}
 
 		} else {
@@ -143,8 +146,24 @@ public class UserController implements UserConstants {
 
 	@DeleteMapping("/delete/{id}")
 	public ResponseModel Delete(@PathVariable("id") int id) {
-		User user = userServiceDao.deleteUserById(id);
-		responseModel.setData(user);
+		try {
+			Optional<User> user = userServiceDao.deleteUserById(id);
+			if (user != null) {
+				responseModel.setData(user);
+				responseModel.setMessage(USER_DETAILS_DELETED_SUCCESSFULLY);
+				responseModel.setStatus(SUCCESS);
+			} else {
+				responseModel.setStatus(FAIL);
+				responseModel.setMessage(ERROR_UNSUCCESS);
+				responseModel.setData(null);
+			}
+		} catch (Exception ex) {
+
+			responseModel.setMessage(ERROR_EXCEPTION);
+			responseModel.setStatus(FAIL);
+			responseModel.setData(null);
+		}
+
 		return responseModel;
 	}
 }

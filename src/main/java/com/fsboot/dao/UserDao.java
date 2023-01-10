@@ -40,10 +40,10 @@ public class UserDao implements UserSqlQueries, UserConstants {
 
 	}
 
-	public User delData(int id) {
-		userRepo.deleteById(id);
-		return user;
-
+	public Optional<User> delData(int id) {
+		Optional<User> user=userRepo.findById(id);
+		 userRepo.deleteById(id);
+		 return user;
 	}
 
 	public List<UserDto> AllUsers() {
