@@ -5,6 +5,10 @@ public class UserDto {
 	private String name;
 	private String address;
 
+	public UserDto() {
+		super();
+	}
+
 	public int getId() {
 		return id;
 	}

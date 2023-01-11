@@ -2,6 +2,7 @@ package com.fsboot.dao;
 
 import com.fsboot.dto.UserDto;
 import com.fsboot.entities.User;
+import com.fsboot.mapper.UserMapper;
 import com.fsboot.repo.UserRepo;
 import com.fsboot.utils.UserConstants;
 import com.fsboot.entities.ResponseModel;
@@ -19,11 +20,10 @@ import java.util.Optional;
 public class UserDao implements UserSqlQueries, UserConstants {
 	@Autowired
 	private JdbcTemplate jdbcTemplateObj;
-	@Autowired
-	private User user;
 
 	@Autowired
 	private UserRepo userRepo;
+	
 	private DataSource dataSource;
 
 	public DataSource getDataSource() {
@@ -37,7 +37,6 @@ public class UserDao implements UserSqlQueries, UserConstants {
 
 	public User insData(User user) {
 		return userRepo.save(user);
-
 	}
 
 	public Optional<User> delData(int id) {
@@ -47,19 +46,15 @@ public class UserDao implements UserSqlQueries, UserConstants {
 	}
 
 	public List<UserDto> AllUsers() {
-		return jdbcTemplateObj.query(SelQuery,
-				(rs, row_num) -> new UserDto(rs.getInt("id"), rs.getString("name"), rs.getString("address")));
-
-	}
+		return jdbcTemplateObj.query(SelQuery,new UserMapper());
+		}
 
 	public User getSingleUser(Integer id) {
-
 		return userRepo.findById(id).get();
-
 	}
 
 	public Optional<User> updUsers(User user) {
-		 jdbcTemplateObj.update(Upd_Query,user.getName(),user.getAddress(),user.getId());
+		jdbcTemplateObj.update(Upd_Query,user.getName(),user.getAddress(),user.getId());
 		return userRepo.findById(user.getId());
 	}
 }
