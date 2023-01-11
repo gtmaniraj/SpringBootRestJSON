@@ -117,10 +117,10 @@ public class UserController implements UserConstants {
 		validationResult = UserDataInfoValidator.validateUpdateUserInfo(jsonDataForUpdateUserDataInfo);
 		if (validationResult.size() == 0) {
 			try {
-				User user = userServiceDao.updateUserById(
+				Optional<User> user = userServiceDao.updateUserById(
 						UserInfoHelper.processUpdateUserInfoJsonRequestData(jsonDataForUpdateUserDataInfo));
 
-				if (user != null) {
+				if (!user.isEmpty()) {
 					responseModel.setStatus(SUCCESS);
 					responseModel.setMessage(USER_DETAILS_UPDATED_SUCCESSFULLY);
 					responseModel.setData(user);

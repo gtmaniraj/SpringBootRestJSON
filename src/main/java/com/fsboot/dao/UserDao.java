@@ -58,7 +58,8 @@ public class UserDao implements UserSqlQueries, UserConstants {
 
 	}
 
-	public User updUsers(User user) {
-		return userRepo.save(user);
+	public Optional<User> updUsers(User user) {
+		 jdbcTemplateObj.update(Upd_Query,user.getName(),user.getAddress(),user.getId());
+		return userRepo.findById(user.getId());
 	}
 }
